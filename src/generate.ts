@@ -2,7 +2,7 @@ import { generate } from '@devexperts/swagger-codegen-ts';
 import * as path from 'path';
 import { serialize as serializeOpenAPI3 } from '@devexperts/swagger-codegen-ts/dist/language/typescript/3.0';
 import { OpenapiObjectCodec } from '@devexperts/swagger-codegen-ts/dist/schema/3.0/openapi-object';
-import { taskEither } from 'fp-ts';
+import { either, task, taskEither } from 'fp-ts';
 import { replaceInFile } from 'replace-in-file';
 import { identity, pipe } from 'fp-ts/lib/function';
 import axios from 'axios';
@@ -54,6 +54,14 @@ export const generateApifromFile = (
     )
   );
 
+const cleanup = taskEither.tryCatch(
+  () => promisify(fs.unlink)('spot_api.yaml'),
+  (e) => {
+    console.log('Failed to cleanup');
+    return e;
+  }
+);
+
 export const generateApifromURL = (
   baseDir: string,
   specUrl: string,
@@ -68,13 +76,14 @@ export const generateApifromURL = (
       )
     ),
     taskEither.chain(() => generateApifromFile(baseDir, 'spot_api.yaml', out)),
-    taskEither.chain(() =>
-      taskEither.tryCatch(
-        () => promisify(fs.unlink)('spot_api.yaml'),
-        (e) => {
-          console.log('Failed to cleanup');
-          return e;
-        }
+    task.chain(
+      either.fold(
+        (e) =>
+          pipe(
+            cleanup,
+            task.map(() => either.left(e))
+          ),
+        () => cleanup
       )
     )
   );

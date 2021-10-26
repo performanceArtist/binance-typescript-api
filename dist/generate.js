@@ -59,8 +59,9 @@ const generateApifromFile = (baseDir, specPath, out) => (0, function_1.pipe)((0,
     decoder: openapi_object_1.OpenapiObjectCodec,
 }), fp_ts_1.taskEither.chain(() => fp_ts_1.taskEither.tryCatch(() => fixSymbolType(`${path.resolve(baseDir, out)}/spot_api.yaml/**/*.ts`), function_1.identity)));
 exports.generateApifromFile = generateApifromFile;
-const generateApifromURL = (baseDir, specUrl, out) => (0, function_1.pipe)(fp_ts_1.taskEither.tryCatch(() => axios_1.default.get(specUrl), function_1.identity), fp_ts_1.taskEither.chain((response) => fp_ts_1.taskEither.tryCatch(() => (0, util_1.promisify)(fs_1.default.writeFile)('spot_api.yaml', response.data), function_1.identity)), fp_ts_1.taskEither.chain(() => (0, exports.generateApifromFile)(baseDir, 'spot_api.yaml', out)), fp_ts_1.taskEither.chain(() => fp_ts_1.taskEither.tryCatch(() => (0, util_1.promisify)(fs_1.default.unlink)('spot_api.yaml'), (e) => {
+const cleanup = fp_ts_1.taskEither.tryCatch(() => (0, util_1.promisify)(fs_1.default.unlink)('spot_api.yaml'), (e) => {
     console.log('Failed to cleanup');
     return e;
-})));
+});
+const generateApifromURL = (baseDir, specUrl, out) => (0, function_1.pipe)(fp_ts_1.taskEither.tryCatch(() => axios_1.default.get(specUrl), function_1.identity), fp_ts_1.taskEither.chain((response) => fp_ts_1.taskEither.tryCatch(() => (0, util_1.promisify)(fs_1.default.writeFile)('spot_api.yaml', response.data), function_1.identity)), fp_ts_1.taskEither.chain(() => (0, exports.generateApifromFile)(baseDir, 'spot_api.yaml', out)), fp_ts_1.task.chain(fp_ts_1.either.fold((e) => (0, function_1.pipe)(cleanup, fp_ts_1.task.map(() => fp_ts_1.either.left(e))), () => cleanup)));
 exports.generateApifromURL = generateApifromURL;
