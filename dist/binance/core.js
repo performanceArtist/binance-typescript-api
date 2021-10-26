@@ -22,7 +22,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.makeBinanceWebsocketClient = exports.makeWebsocketStream = exports.makeBinanceHttpClient = exports.fromPromiseToStream = exports.makeSignQuery = exports.buildQueryString = void 0;
+exports.makeBinanceWebSocketClient = exports.makeWebSocketStream = exports.makeBinanceHttpClient = exports.fromPromiseToStream = exports.makeSignQuery = exports.buildQueryString = void 0;
 const crypto = __importStar(require("crypto"));
 const axios_1 = __importDefault(require("axios"));
 const function_1 = require("fp-ts/lib/function");
@@ -94,7 +94,7 @@ const makeBinanceHttpClient = (baseURL, config) => ({
         } }),
 });
 exports.makeBinanceHttpClient = makeBinanceHttpClient;
-const makeWebsocketStream = (url, websocketImplementation) => {
+const makeWebSocketStream = (url, websocketImplementation) => {
     const subject = new rxjs_1.Subject();
     const websocket = new reconnecting_websocket_1.default(url, undefined, {
         debug: true,
@@ -104,21 +104,21 @@ const makeWebsocketStream = (url, websocketImplementation) => {
     websocket.addEventListener('message', (e) => subject.next((0, function_1.pipe)((0, Json_1.parse)(e.data), fp_ts_1.either.mapLeft((e) => new Error(String(e))))));
     return subject.asObservable();
 };
-exports.makeWebsocketStream = makeWebsocketStream;
-const fromWebsocketStream = (stream$, parser) => (0, function_1.pipe)(stream$, rxo.map(fp_ts_1.either.chain((0, function_1.flow)(parser, fp_ts_1.either.mapLeft((e) => new Error(JSON.stringify(e.map((e) => e.context))))))));
+exports.makeWebSocketStream = makeWebSocketStream;
+const fromWebSocketStream = (stream$, parser) => (0, function_1.pipe)(stream$, rxo.map(fp_ts_1.either.chain((0, function_1.flow)(parser, fp_ts_1.either.mapLeft((e) => new Error(JSON.stringify(e.map((e) => e.context))))))));
 // based on binance-connector
-const makeBinanceWebsocketClient = (baseURL, websocketImplementation) => ({
-    aggregatedTrade: (symbol) => fromWebsocketStream((0, exports.makeWebsocketStream)(`${baseURL}/ws/${symbol.toLowerCase()}@aggTrade`, websocketImplementation), socketTypes_1.BinanceSocketAggregatedTradeIO.decode),
-    trade: (symbol) => fromWebsocketStream((0, exports.makeWebsocketStream)(`${baseURL}/ws/${symbol.toLowerCase()}@trade`, websocketImplementation), socketTypes_1.BinanceSocketTradeIO.decode),
-    kline: (symbol, interval) => fromWebsocketStream((0, exports.makeWebsocketStream)(`${baseURL}/ws/${symbol.toLowerCase()}@kline_${interval}`, websocketImplementation), socketTypes_1.BinanceSocketKlineIO.decode),
-    miniTicker: (symbol) => fromWebsocketStream((0, exports.makeWebsocketStream)(`${baseURL}/ws/${symbol.toLowerCase()}@miniTicker`, websocketImplementation), socketTypes_1.BinanceSocketMiniTickerIO.decode),
-    miniTickers: () => fromWebsocketStream((0, exports.makeWebsocketStream)(`${baseURL}/ws/!miniTicker@arr`, websocketImplementation), t.array(socketTypes_1.BinanceSocketMiniTickerIO).decode),
-    ticker: (symbol) => fromWebsocketStream((0, exports.makeWebsocketStream)(`${baseURL}/ws/${symbol.toLowerCase()}@ticker`, websocketImplementation), socketTypes_1.BinanceSocketTickerIO.decode),
-    tickers: () => fromWebsocketStream((0, exports.makeWebsocketStream)(`${baseURL}/ws/!ticker@arr`, websocketImplementation), t.array(socketTypes_1.BinanceSocketTickerIO).decode),
-    bookTicker: (symbol) => fromWebsocketStream((0, exports.makeWebsocketStream)(`${baseURL}/ws/${symbol.toLowerCase()}@bookTicker`, websocketImplementation), socketTypes_1.BinanceSocketBookTickerIO.decode),
-    bookTickers: () => fromWebsocketStream((0, exports.makeWebsocketStream)(`${baseURL}/ws/!bookTicker`, websocketImplementation), socketTypes_1.BinanceSocketBookTickerIO.decode),
-    partialBookDepth: (symbol, levels, speed) => fromWebsocketStream((0, exports.makeWebsocketStream)(`${baseURL}/ws/${symbol.toLowerCase()}@depth${levels}@${speed}`, websocketImplementation), socketTypes_1.BinanceSocketPartialBookDepthIO.decode),
-    diffBookDepth: (symbol, speed) => fromWebsocketStream((0, exports.makeWebsocketStream)(`${baseURL}/ws/${symbol.toLowerCase()}@depth@${speed}`, websocketImplementation), socketTypes_1.BinanceSocketDiffDepthIO.decode),
-    userData: (listenKey) => fromWebsocketStream((0, exports.makeWebsocketStream)(`${baseURL}/ws/${listenKey}`, websocketImplementation), socketTypes_1.BinanceSocketUserUpdateIO.decode),
+const makeBinanceWebSocketClient = (baseURL, websocketImplementation) => ({
+    aggregatedTrade: (symbol) => fromWebSocketStream((0, exports.makeWebSocketStream)(`${baseURL}/ws/${symbol.toLowerCase()}@aggTrade`, websocketImplementation), socketTypes_1.BinanceSocketAggregatedTradeIO.decode),
+    trade: (symbol) => fromWebSocketStream((0, exports.makeWebSocketStream)(`${baseURL}/ws/${symbol.toLowerCase()}@trade`, websocketImplementation), socketTypes_1.BinanceSocketTradeIO.decode),
+    kline: (symbol, interval) => fromWebSocketStream((0, exports.makeWebSocketStream)(`${baseURL}/ws/${symbol.toLowerCase()}@kline_${interval}`, websocketImplementation), socketTypes_1.BinanceSocketKlineIO.decode),
+    miniTicker: (symbol) => fromWebSocketStream((0, exports.makeWebSocketStream)(`${baseURL}/ws/${symbol.toLowerCase()}@miniTicker`, websocketImplementation), socketTypes_1.BinanceSocketMiniTickerIO.decode),
+    miniTickers: () => fromWebSocketStream((0, exports.makeWebSocketStream)(`${baseURL}/ws/!miniTicker@arr`, websocketImplementation), t.array(socketTypes_1.BinanceSocketMiniTickerIO).decode),
+    ticker: (symbol) => fromWebSocketStream((0, exports.makeWebSocketStream)(`${baseURL}/ws/${symbol.toLowerCase()}@ticker`, websocketImplementation), socketTypes_1.BinanceSocketTickerIO.decode),
+    tickers: () => fromWebSocketStream((0, exports.makeWebSocketStream)(`${baseURL}/ws/!ticker@arr`, websocketImplementation), t.array(socketTypes_1.BinanceSocketTickerIO).decode),
+    bookTicker: (symbol) => fromWebSocketStream((0, exports.makeWebSocketStream)(`${baseURL}/ws/${symbol.toLowerCase()}@bookTicker`, websocketImplementation), socketTypes_1.BinanceSocketBookTickerIO.decode),
+    bookTickers: () => fromWebSocketStream((0, exports.makeWebSocketStream)(`${baseURL}/ws/!bookTicker`, websocketImplementation), socketTypes_1.BinanceSocketBookTickerIO.decode),
+    partialBookDepth: (symbol, levels, speed) => fromWebSocketStream((0, exports.makeWebSocketStream)(`${baseURL}/ws/${symbol.toLowerCase()}@depth${levels}@${speed}`, websocketImplementation), socketTypes_1.BinanceSocketPartialBookDepthIO.decode),
+    diffBookDepth: (symbol, speed) => fromWebSocketStream((0, exports.makeWebSocketStream)(`${baseURL}/ws/${symbol.toLowerCase()}@depth@${speed}`, websocketImplementation), socketTypes_1.BinanceSocketDiffDepthIO.decode),
+    userData: (listenKey) => fromWebSocketStream((0, exports.makeWebSocketStream)(`${baseURL}/ws/${listenKey}`, websocketImplementation), socketTypes_1.BinanceSocketUserUpdateIO.decode),
 });
-exports.makeBinanceWebsocketClient = makeBinanceWebsocketClient;
+exports.makeBinanceWebSocketClient = makeBinanceWebSocketClient;

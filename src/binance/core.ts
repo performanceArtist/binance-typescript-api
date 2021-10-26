@@ -71,6 +71,8 @@ export const makeSignQuery =
     };
   };
 
+export type SignQuery = ReturnType<typeof makeSignQuery>;
+
 const getBinanceUrl = (url: string, rawQuery: string | undefined) =>
   rawQuery === undefined
     ? url
@@ -160,7 +162,7 @@ export const makeBinanceHttpClient = (
   },
 });
 
-export const makeWebsocketStream = (
+export const makeWebSocketStream = (
   url: string,
   websocketImplementation?: any
 ): Observable<Either<Error, Json>> => {
@@ -182,7 +184,7 @@ export const makeWebsocketStream = (
   return subject.asObservable();
 };
 
-const fromWebsocketStream = <A>(
+const fromWebSocketStream = <A>(
   stream$: Observable<Either<Error, Json>>,
   parser: (input: Json) => Either<t.Errors, A>
 ) =>
@@ -201,98 +203,102 @@ const fromWebsocketStream = <A>(
   );
 
 // based on binance-connector
-export const makeBinanceWebsocketClient = (
+export const makeBinanceWebSocketClient = (
   baseURL: string,
   websocketImplementation?: any
 ) => ({
   aggregatedTrade: (symbol: string) =>
-    fromWebsocketStream(
-      makeWebsocketStream(
+    fromWebSocketStream(
+      makeWebSocketStream(
         `${baseURL}/ws/${symbol.toLowerCase()}@aggTrade`,
         websocketImplementation
       ),
       BinanceSocketAggregatedTradeIO.decode
     ),
   trade: (symbol: string) =>
-    fromWebsocketStream(
-      makeWebsocketStream(
+    fromWebSocketStream(
+      makeWebSocketStream(
         `${baseURL}/ws/${symbol.toLowerCase()}@trade`,
         websocketImplementation
       ),
       BinanceSocketTradeIO.decode
     ),
   kline: (symbol: string, interval: BinanceInterval) =>
-    fromWebsocketStream(
-      makeWebsocketStream(
+    fromWebSocketStream(
+      makeWebSocketStream(
         `${baseURL}/ws/${symbol.toLowerCase()}@kline_${interval}`,
         websocketImplementation
       ),
       BinanceSocketKlineIO.decode
     ),
   miniTicker: (symbol: string) =>
-    fromWebsocketStream(
-      makeWebsocketStream(
+    fromWebSocketStream(
+      makeWebSocketStream(
         `${baseURL}/ws/${symbol.toLowerCase()}@miniTicker`,
         websocketImplementation
       ),
       BinanceSocketMiniTickerIO.decode
     ),
   miniTickers: () =>
-    fromWebsocketStream(
-      makeWebsocketStream(
+    fromWebSocketStream(
+      makeWebSocketStream(
         `${baseURL}/ws/!miniTicker@arr`,
         websocketImplementation
       ),
       t.array(BinanceSocketMiniTickerIO).decode
     ),
   ticker: (symbol: string) =>
-    fromWebsocketStream(
-      makeWebsocketStream(
+    fromWebSocketStream(
+      makeWebSocketStream(
         `${baseURL}/ws/${symbol.toLowerCase()}@ticker`,
         websocketImplementation
       ),
       BinanceSocketTickerIO.decode
     ),
   tickers: () =>
-    fromWebsocketStream(
-      makeWebsocketStream(`${baseURL}/ws/!ticker@arr`, websocketImplementation),
+    fromWebSocketStream(
+      makeWebSocketStream(`${baseURL}/ws/!ticker@arr`, websocketImplementation),
       t.array(BinanceSocketTickerIO).decode
     ),
   bookTicker: (symbol: string) =>
-    fromWebsocketStream(
-      makeWebsocketStream(
+    fromWebSocketStream(
+      makeWebSocketStream(
         `${baseURL}/ws/${symbol.toLowerCase()}@bookTicker`,
         websocketImplementation
       ),
       BinanceSocketBookTickerIO.decode
     ),
   bookTickers: () =>
-    fromWebsocketStream(
-      makeWebsocketStream(`${baseURL}/ws/!bookTicker`, websocketImplementation),
+    fromWebSocketStream(
+      makeWebSocketStream(`${baseURL}/ws/!bookTicker`, websocketImplementation),
       BinanceSocketBookTickerIO.decode
     ),
   partialBookDepth: (symbol: string, levels: 5 | 10 | 20, speed: 100 | 1000) =>
-    fromWebsocketStream(
-      makeWebsocketStream(
+    fromWebSocketStream(
+      makeWebSocketStream(
         `${baseURL}/ws/${symbol.toLowerCase()}@depth${levels}@${speed}`,
         websocketImplementation
       ),
       BinanceSocketPartialBookDepthIO.decode
     ),
   diffBookDepth: (symbol: string, speed: 100 | 1000) =>
-    fromWebsocketStream(
-      makeWebsocketStream(
+    fromWebSocketStream(
+      makeWebSocketStream(
         `${baseURL}/ws/${symbol.toLowerCase()}@depth@${speed}`,
         websocketImplementation
       ),
       BinanceSocketDiffDepthIO.decode
     ),
   userData: (listenKey: string) =>
-    fromWebsocketStream(
-      makeWebsocketStream(
+    fromWebSocketStream(
+      makeWebSocketStream(
         `${baseURL}/ws/${listenKey}`,
         websocketImplementation
       ),
       BinanceSocketUserUpdateIO.decode
     ),
 });
+
+export type BinanceWebSocketClient = ReturnType<
+  typeof makeBinanceWebSocketClient
+>;

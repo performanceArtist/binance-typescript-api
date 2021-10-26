@@ -10,6 +10,7 @@ export declare const makeSignQuery: (apiSecret: string) => <T extends Record<str
     signature: string;
     timestamp: t.Int;
 };
+export declare type SignQuery = ReturnType<typeof makeSignQuery>;
 export declare const fromPromiseToStream: <A>(promise: () => Promise<A>) => Observable<either.Either<unknown, A>>;
 export declare type BinanceConfig = {
     apiKey: string;
@@ -44,8 +45,8 @@ export declare const makeBinanceHttpClient: (baseURL: string, config: BinanceCon
         throwError: <E_8, A_8>(e: E_8) => observableEither.ObservableEither<E_8, A_8>;
     };
 };
-export declare const makeWebsocketStream: (url: string, websocketImplementation?: any) => Observable<Either<Error, Json>>;
-export declare const makeBinanceWebsocketClient: (baseURL: string, websocketImplementation?: any) => {
+export declare const makeWebSocketStream: (url: string, websocketImplementation?: any) => Observable<Either<Error, Json>>;
+export declare const makeBinanceWebSocketClient: (baseURL: string, websocketImplementation?: any) => {
     aggregatedTrade: (symbol: string) => Observable<either.Either<Error, {
         e: "aggTrade";
         E: t.Branded<number, t.IntBrand>;
@@ -264,4 +265,5 @@ export declare const makeBinanceWebsocketClient: (baseURL: string, websocketImpl
         }[];
     }>>;
 };
+export declare type BinanceWebSocketClient = ReturnType<typeof makeBinanceWebSocketClient>;
 export {};
