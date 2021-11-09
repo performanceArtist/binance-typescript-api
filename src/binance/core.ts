@@ -141,7 +141,10 @@ export const makeBinanceHttpClient = (
       });
       instance.interceptors.response.use(
         (r) => r,
-        (error) => Promise.reject(error.response.data)
+        (error) => {
+          console.log('error', error);
+          return Promise.reject(error.response.data);
+        }
       );
 
       return pipe(

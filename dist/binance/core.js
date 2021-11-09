@@ -86,7 +86,10 @@ const makeBinanceHttpClient = (baseURL, config) => ({
                     'X-MBX-APIKEY': config.apiKey,
                 },
             });
-            instance.interceptors.response.use((r) => r, (error) => Promise.reject(error.response.data));
+            instance.interceptors.response.use((r) => r, (error) => {
+                console.log('error', error);
+                return Promise.reject(error.response.data);
+            });
             return (0, function_1.pipe)(() => instance.request({
                 method,
                 url,
